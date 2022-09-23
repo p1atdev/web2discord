@@ -1,15 +1,16 @@
 import { StandardWebSocketClient } from "../deps.ts"
 import { GetMessageProtocol, HelloProtocol, PostMessageProtocol } from "../protocol.ts"
 
-const connectionId = "1234"
-
-await fetch("http://localhost:8000/auth", {
+const res = await fetch("http://localhost:8000/auth", {
     method: "POST",
-    body: JSON.stringify({
-        token: "test",
-        id: connectionId,
-    }),
+    headers: {
+        Cookie: `token=test`,
+    },
 })
+
+const json = await res.json()
+
+const connectionId = json.id
 
 const ws = new StandardWebSocketClient("ws://127.0.0.1:8080")
 

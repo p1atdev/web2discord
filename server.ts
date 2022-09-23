@@ -17,13 +17,21 @@ export class PipeServer {
 
         app.get("/", (c) => c.text("Hono!!"))
 
-        app.post("/auth", async (c) => {
-            const json: AuthRequest = await c.req.json()
-            if (json.token === Secret.PIPE_TOKEN) {
-                c.text("ok")
-                pipe.addAllowList(json.id)
+        app.post("/auth", (c) => {
+            // const json: AuthRequest = await c.req.json()
+            const token = c.req.cookie("token")
+
+            if (token === Secret.PIPE_TOKEN) {
+                const randomId = Math.random().toString(36).substring(7)
+
+                pipe.addAllowList(randomId)
+
+                return c.json({
+                    status: "ok",
+                    id: randomId,
+                })
             } else {
-                c.json({ error: "Invalid token" }, 401)
+                return c.json({ status: "error", message: "Invalid token" }, 401)
             }
         })
 
