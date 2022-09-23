@@ -1,3 +1,4 @@
+import { getAlterName } from "./alter_name.ts"
 import { Bot, createBot, Intents, Message, startBot, stopBot } from "./deps.ts"
 import { PostMessageProtocol } from "./protocol.ts"
 import { Secret } from "./secret.ts"
@@ -59,7 +60,22 @@ export class PipeBot {
     }
 
     getUsers = async () => {
-        return await this.bot.helpers.getMembers(Secret.PIPE_GUILD_ID, { limit: 100 })
+        const users = await this.bot.helpers.getMembers(Secret.PIPE_GUILD_ID, { limit: 100 })
+        return users.map((user) => {
+            const alter = getAlterName(user.id.toString())
+
+            if (alter) {
+                return {
+                    ...user,
+                    user: {
+                        ...user.user,
+                        username: alter,
+                    },
+                }
+            } else {
+                return user
+            }
+        })
     }
 
     sendMessage = async (payload: PostMessageProtocol) => {
