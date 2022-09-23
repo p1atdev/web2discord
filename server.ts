@@ -1,5 +1,6 @@
 import { serve, hono } from "./deps.ts"
 import { AuthRequest } from "./protocol.ts"
+import { Secret } from "./secret.ts"
 import { StreamServer } from "./stream.ts"
 
 export class PipeServer {
@@ -18,7 +19,7 @@ export class PipeServer {
 
         app.post("/auth", async (c) => {
             const json: AuthRequest = await c.req.json()
-            if (json.token) {
+            if (json.token === Secret.PIPE_TOKEN) {
                 c.text("ok")
                 pipe.addAllowList(json.id)
             } else {
