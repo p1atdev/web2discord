@@ -1,5 +1,4 @@
 import { serve, hono } from "./deps.ts"
-import { AuthRequest } from "./protocol.ts"
 import { Secret } from "./secret.ts"
 import { StreamServer } from "./stream.ts"
 
@@ -22,14 +21,22 @@ export class PipeServer {
             const token = c.req.cookie("token")
 
             if (token === Secret.PIPE_TOKEN) {
-                const randomId = Math.random().toString(36).substring(7)
+                const id = c.req.cookie("client_id")
 
-                pipe.addAllowList(randomId)
-
-                return c.json({
-                    status: "ok",
-                    id: randomId,
-                })
+                if (id) {
+                    pipe.addAllowList(id)
+                    return c.json({
+                        status: "ok",
+                        id: id,
+                    })
+                } else {
+                    const randomId = Math.random().toString(36).substring(7)
+                    pipe.addAllowList(randomId)
+                    return c.json({
+                        status: "ok",
+                        id: randomId,
+                    })
+                }
             } else {
                 return c.json({ status: "error", message: "Invalid token" }, 401)
             }
