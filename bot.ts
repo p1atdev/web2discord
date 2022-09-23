@@ -10,7 +10,7 @@ export class PipeBot {
     constructor(streamServer: StreamServer) {
         this.bot = createBot({
             token: Secret.DISCORD_TOKEN,
-            intents: Intents.Guilds | Intents.GuildMessages | Intents.MessageContent,
+            intents: Intents.Guilds | Intents.GuildMessages | Intents.MessageContent | Intents.GuildMembers,
             events: {
                 ready() {
                     console.log("Successfully connected to gateway")
@@ -55,6 +55,10 @@ export class PipeBot {
                 limit: count,
             })
         }
+    }
+
+    getUsers = async () => {
+        return await this.bot.helpers.getMembers(Secret.PIPE_GUILD_ID, { limit: 100 })
     }
 
     sendMessage = async (payload: PostMessageProtocol) => {

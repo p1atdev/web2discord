@@ -12,7 +12,7 @@ const json = await res.json()
 
 const connectionId = json.id
 
-const ws = new StandardWebSocketClient("ws://127.0.0.1:8080")
+const ws = new StandardWebSocketClient("ws://localhost:8080")
 
 ws.on("open", async () => {
     console.log("ws connected!")

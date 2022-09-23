@@ -3,12 +3,16 @@ import { WebSocketServer, WebSocketClient } from "./deps.ts"
 import {
     ErrorProtocol,
     GetMessageProtocol,
+    GetProtocol,
     HelloProtocol,
     MessageProtocol,
     OkProtocol,
     PostMessageProtocol,
+    ReadyProtocol,
     StreamProtocol,
     UpdateMessageProtocol,
+    UpdateUserProtocol,
+    UserProtocol,
 } from "./protocol.ts"
 
 export class StreamServer {
@@ -25,6 +29,8 @@ export class StreamServer {
 
         this.wss.on("connection", (ws: WebSocketClient) => {
             console.log("ws connected!")
+
+            ws.ping() // 接続完了メッセージ
 
             ws.on("message", async (message: string) => {
                 try {
@@ -45,26 +51,55 @@ export class StreamServer {
                             break
                         }
                         case "Get": {
-                            const get: GetMessageProtocol = payload as GetMessageProtocol
+                            const get: GetProtocol = payload as GetProtocol
 
-                            if (!self.isAllowed(get.data.id)) {
-                                ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
-                                break
+                            switch (get.data.target) {
+                                case "Messages": {
+                                    const getM: GetMessageProtocol = get as GetMessageProtocol
+                                    if (!self.isAllowed(get.data.id)) {
+                                        ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
+                                        break
+                                    }
+
+                                    console.log("Client wants to get messages:", get.data.id)
+
+                                    const messages = await this.getMessages(pipe, getM.data.count)
+                                    const update: UpdateMessageProtocol = {
+                                        type: "Update",
+                                        data: {
+                                            id: "1234",
+                                            target: "Messages",
+                                            messages: messages,
+                                        },
+                                    }
+                                    ws.send(JSON.stringify(update))
+                                    break
+                                }
+                                case "Users": {
+                                    if (!self.isAllowed(get.data.id)) {
+                                        ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
+                                        break
+                                    }
+
+                                    console.log("Client wants to get users:", get.data.id)
+
+                                    const users = await this.getUsers(pipe)
+                                    const update: UpdateUserProtocol = {
+                                        type: "Update",
+                                        data: {
+                                            id: get.data.id,
+                                            target: "Users",
+                                            users: users,
+                                        },
+                                    }
+                                    ws.send(JSON.stringify(update))
+                                    break
+                                }
+                                default: {
+                                    break
+                                }
                             }
 
-                            self.clients.set(get.data.id, ws)
-                            console.log("Client wants to get messages:", get.data.id)
-
-                            const messages = await this.getMessages(pipe, get.data.count)
-                            const update: UpdateMessageProtocol = {
-                                type: "Update",
-                                data: {
-                                    id: "1234",
-                                    target: "Messages",
-                                    messages: messages,
-                                },
-                            }
-                            ws.send(JSON.stringify(update))
                             break
                         }
                         case "Post": {
@@ -75,7 +110,6 @@ export class StreamServer {
                                 break
                             }
 
-                            self.clients.set(post.data.id, ws)
                             console.log("Client wants to post messages:", post.data.id)
 
                             await self.sendMessage(pipe, post)
@@ -137,7 +171,18 @@ export class StreamServer {
                 id: message.id.toString(),
                 date: message.timestamp.toString(),
                 authorId: message.authorId.toString(),
-                message: message.content,
+                content: message.content,
+            }
+        })
+    }
+
+    getUsers = async (pipe: PipeBot): Promise<UserProtocol[]> => {
+        const users = await pipe.getUsers()
+        return users.map((user) => {
+            return {
+                id: user.id.toString(),
+                username: user.user?.username ?? "Unknown",
+                icon: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`,
             }
         })
     }
@@ -173,6 +218,13 @@ export class StreamServer {
             data: {
                 id: id,
             },
+        }
+    }
+
+    static Ready = (): ReadyProtocol => {
+        return {
+            type: "Ready",
+            data: { id: "-1" },
         }
     }
 }
