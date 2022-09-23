@@ -1,3 +1,4 @@
+import { PipeBot } from "./bot.ts"
 import { WebSocketServer, WebSocketClient } from "./deps.ts"
 import {
     ErrorProtocol,
@@ -19,13 +20,13 @@ export class StreamServer {
         this.wss = new WebSocketServer(port ?? 8080)
     }
 
-    start(self: StreamServer) {
+    start(self: StreamServer, pipe: PipeBot) {
         console.log("Stream server started")
 
-        this.wss.on("connection", function (ws: WebSocketClient) {
+        this.wss.on("connection", (ws: WebSocketClient) => {
             console.log("ws connected!")
 
-            ws.on("message", function (message: string) {
+            ws.on("message", async (message: string) => {
                 try {
                     const payload: StreamProtocol = JSON.parse(message)
                     console.log(payload)
@@ -54,6 +55,16 @@ export class StreamServer {
                             self.clients.set(get.data.id, ws)
                             console.log("Client wants to get messages:", get.data.id)
 
+                            const messages = await this.getMessages(pipe, get.data.count)
+                            const update: UpdateMessageProtocol = {
+                                type: "Update",
+                                data: {
+                                    id: "1234",
+                                    target: "Messages",
+                                    messages: messages,
+                                },
+                            }
+                            ws.send(JSON.stringify(update))
                             break
                         }
                         case "Post": {
@@ -102,6 +113,18 @@ export class StreamServer {
                 },
             }
             client.send(JSON.stringify(update))
+        })
+    }
+
+    getMessages = async (pipe: PipeBot, count: number, before?: string): Promise<MessageProtocol[]> => {
+        const messages = await pipe.getMessages(count, before)
+        return messages.map((message) => {
+            return {
+                id: message.id.toString(),
+                date: message.timestamp.toString(),
+                authorId: message.authorId.toString(),
+                message: message.content,
+            }
         })
     }
 

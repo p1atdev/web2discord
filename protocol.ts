@@ -21,6 +21,7 @@ export interface GetMessageProtocol extends StreamProtocol {
         id: string
         target: "Messages"
         count: number
+        before?: string
     }
 }
 

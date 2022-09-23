@@ -30,7 +30,7 @@ export class PipeBot {
         await stopBot(this.bot)
     }
 
-    private onMessage(b: Bot, m: Message) {
+    private onMessage(_b: Bot, m: Message) {
         if (m.channelId.toString() !== Secret.PIPE_CHANNEL_ID) {
             return
         }
@@ -41,5 +41,18 @@ export class PipeBot {
             message: m.content,
             date: m.timestamp.toString(),
         })
+    }
+
+    getMessages = async (count: number, before?: string) => {
+        if (before) {
+            return await this.bot.helpers.getMessages(Secret.PIPE_CHANNEL_ID, {
+                before: before,
+                limit: count,
+            })
+        } else {
+            return await this.bot.helpers.getMessages(Secret.PIPE_CHANNEL_ID, {
+                limit: count,
+            })
+        }
     }
 }
