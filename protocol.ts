@@ -95,6 +95,7 @@ export interface MessageProtocol {
     date: string
     authorId: string
     content: string
+    tag: string
 }
 
 export interface ErrorProtocol extends StreamProtocol {

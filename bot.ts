@@ -41,6 +41,7 @@ export class PipeBot {
             authorId: m.authorId.toString(),
             content: m.content,
             date: m.timestamp.toString(),
+            tag: m.tag,
         })
     }
 

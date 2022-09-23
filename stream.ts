@@ -170,6 +170,7 @@ export class StreamServer {
                 date: message.timestamp.toString(),
                 authorId: message.authorId.toString(),
                 content: message.content,
+                tag: message.tag,
             }
         })
     }
