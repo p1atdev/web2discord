@@ -32,6 +32,7 @@ export class PipeServer {
                 } else {
                     const randomId = Math.random().toString(36).substring(7)
                     pipe.addAllowList(randomId)
+                    c.res.headers.append("Set-Cookie", `client_id=${randomId}`)
                     return c.json({
                         status: "ok",
                         id: randomId,

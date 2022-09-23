@@ -48,7 +48,7 @@ export interface MessageProtocol {
     id: string
     date: string
     authorId: string
-    message: string
+    content: string
 }
 
 export interface ErrorProtocol extends StreamProtocol {

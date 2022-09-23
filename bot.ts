@@ -39,7 +39,7 @@ export class PipeBot {
         this.streamServer.broadcast({
             id: m.id.toString(),
             authorId: m.authorId.toString(),
-            message: m.content,
+            content: m.content,
             date: m.timestamp.toString(),
         })
     }
