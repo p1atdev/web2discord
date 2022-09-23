@@ -30,8 +30,6 @@ export class StreamServer {
         this.wss.on("connection", (ws: WebSocketClient) => {
             console.log("ws connected!")
 
-            ws.ping() // 接続完了メッセージ
-
             ws.on("message", async (message: string) => {
                 try {
                     const payload: StreamProtocol = JSON.parse(message)
@@ -182,7 +180,7 @@ export class StreamServer {
             return {
                 id: user.id.toString(),
                 username: user.user?.username ?? "Unknown",
-                icon: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}`,
+                icon: `https://cdn.discordapp.com/avatars/${user.id}/${user.user?.avatar}.webp`,
             }
         })
     }
