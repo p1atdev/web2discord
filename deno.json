@@ -2,7 +2,9 @@
     "tasks": {
         "test": "deno test --allow-net --allow-env --allow-read",
         "test:cov": "deno test -A --coverage=coverage && deno coverage ./coverage --lcov --output=coverage.lcov",
-        "cache": "deno cache ./deps.ts"
+        "cache": "deno cache ./deps.ts",
+        "start": "deno run -A ./main.ts",
+        "dev": "deno run -A --watch ./main.ts"
     },
     "fmt": {
         "files": {

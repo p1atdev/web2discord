@@ -1,5 +1,8 @@
-import { add } from "./utils/mod.ts";
+import { PipeServer } from "./server.ts"
+import { PipeBot } from "./bot.ts"
 
-export const calculate = (a: number, b: number): number => {
-  return add(a * 10, b);
-};
+const server = new PipeServer()
+const bot = new PipeBot()
+
+server.start()
+bot.start()

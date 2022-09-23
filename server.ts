@@ -1,20 +1,19 @@
-import { serve } from "./deps.ts";
+import { serve, hono } from "./deps.ts"
 
-async function handler(req: Request): Promise<Response> {
-  console.log("Method:", req.method);
+export class PipeServer {
+    hostname: string
+    port: number
 
-  const url = new URL(req.url);
-  console.log("Path:", url.pathname);
-  console.log("Query parameters:", url.searchParams);
+    constructor(hostname?: string, port?: number) {
+        this.hostname = hostname || "0.0.0.0"
+        this.port = port || 8000
+    }
 
-  console.log("Headers:", req.headers);
+    start() {
+        const app = new hono.Hono()
 
-  if (req.body) {
-    const body = await req.text();
-    console.log("Body:", body);
-  }
+        app.get("/", (c) => c.text("Hono!!"))
 
-  return new Response("Hello, World!");
+        serve(app.fetch, { hostname: this.hostname, port: this.port })
+    }
 }
-
-serve(handler, { hostname: "0.0.0.0", port: 8000 });
