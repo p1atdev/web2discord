@@ -1,6 +1,6 @@
 import { getAlterName } from "./alter_name.ts"
 import { Bot, createBot, Intents, Message, startBot, stopBot } from "./deps.ts"
-import { PostMessageProtocol } from "./protocol.ts"
+import { getAttachmentType, PostMessageProtocol } from "./protocol.ts"
 import { Secret } from "./secret.ts"
 import { StreamServer } from "./stream.ts"
 
@@ -43,6 +43,13 @@ export class PipeBot {
             content: m.content,
             date: m.timestamp.toString(),
             tag: m.tag,
+            attachments: m.attachments.map((attachment) => {
+                return {
+                    id: attachment.id.toString(),
+                    type: getAttachmentType(attachment.contentType ?? ""),
+                    url: attachment.url,
+                }
+            }),
         })
     }
 

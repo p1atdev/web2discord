@@ -1,7 +1,9 @@
 import { PipeBot } from "./bot.ts"
 import { WebSocketServer, WebSocketClient } from "./deps.ts"
 import {
+    AttachmentType,
     ErrorProtocol,
+    getAttachmentType,
     GetMessageProtocol,
     GetProtocol,
     HelloProtocol,
@@ -165,12 +167,20 @@ export class StreamServer {
     getMessages = async (pipe: PipeBot, count: number, before?: string): Promise<MessageProtocol[]> => {
         const messages = await pipe.getMessages(count, before)
         return messages.map((message) => {
+            console.log(message.attachments)
             return {
                 id: message.id.toString(),
                 date: message.timestamp.toString(),
                 authorId: message.authorId.toString(),
                 content: message.content,
                 tag: message.tag,
+                attachments: message.attachments.map((attachment) => {
+                    return {
+                        id: attachment.id.toString(),
+                        type: getAttachmentType(attachment.contentType ?? ""),
+                        url: attachment.url,
+                    }
+                }),
             }
         })
     }

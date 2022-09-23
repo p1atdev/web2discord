@@ -96,6 +96,15 @@ export interface MessageProtocol {
     authorId: string
     content: string
     tag: string
+    attachments: AttachmentProtocol[]
+}
+
+export type AttachmentType = "Image" | "Video" | "Audio" | "File"
+
+export interface AttachmentProtocol {
+    id: string
+    type: AttachmentType
+    url: string
 }
 
 export interface ErrorProtocol extends StreamProtocol {
@@ -116,4 +125,21 @@ export interface OkProtocol extends StreamProtocol {
 export interface AuthRequest {
     token: string
     id: string
+}
+
+export const getAttachmentType = (contentType: string): AttachmentType => {
+    switch (contentType) {
+        case "image/png":
+        case "image/jpeg":
+        case "image/gif":
+        case "image/webp":
+            return "Image"
+        case "video/mp4":
+        case "video/quicktime":
+            return "Video"
+        case "audio/mpeg":
+            return "Audio"
+        default:
+            return "File"
+    }
 }
