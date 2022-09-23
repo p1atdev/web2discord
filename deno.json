@@ -4,7 +4,8 @@
         "test:cov": "deno test -A --coverage=coverage && deno coverage ./coverage --lcov --output=coverage.lcov",
         "cache": "deno cache ./deps.ts",
         "start": "deno run -A ./main.ts",
-        "dev": "deno run -A --watch ./main.ts"
+        "dev": "deno run -A --watch ./main.ts",
+        "test:client": "deno run -A --watch ./tests/test_client.ts"
     },
     "fmt": {
         "files": {

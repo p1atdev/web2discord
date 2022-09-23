@@ -1,8 +1,11 @@
 import { PipeServer } from "./server.ts"
 import { PipeBot } from "./bot.ts"
+import { StreamServer } from "./stream.ts"
 
 const server = new PipeServer()
-const bot = new PipeBot()
+const stream = new StreamServer()
+const bot = new PipeBot(stream)
 
 server.start()
+stream.start(stream)
 bot.start()

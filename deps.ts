@@ -14,3 +14,9 @@ export * from "https://deno.land/x/discordeno@16.0.0/mod.ts"
 
 // dotenv
 export * as dotenv from "https://deno.land/std@0.157.0/dotenv/mod.ts"
+
+// websocket
+export * from "https://deno.land/x/websocket@v0.1.4/mod.ts"
+
+// jwt
+export * as jwt from "https://deno.land/x/djwt@v2.7/mod.ts"
