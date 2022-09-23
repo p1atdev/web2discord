@@ -1,4 +1,5 @@
 import { Bot, createBot, Intents, Message, startBot, stopBot } from "./deps.ts"
+import { PostMessageProtocol } from "./protocol.ts"
 import { Secret } from "./secret.ts"
 import { StreamServer } from "./stream.ts"
 
@@ -54,5 +55,12 @@ export class PipeBot {
                 limit: count,
             })
         }
+    }
+
+    sendMessage = async (payload: PostMessageProtocol) => {
+        await this.bot.helpers.sendWebhookMessage(Secret.WEBHOOK_ID, Secret.WEBHOOK_TOKEN, {
+            username: payload.data.username,
+            content: payload.data.message,
+        })
     }
 }

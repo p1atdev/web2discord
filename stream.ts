@@ -78,6 +78,8 @@ export class StreamServer {
                             self.clients.set(post.data.id, ws)
                             console.log("Client wants to post messages:", post.data.id)
 
+                            await self.sendMessage(pipe, post)
+
                             break
                         }
                         default: {
@@ -126,6 +128,10 @@ export class StreamServer {
                 message: message.content,
             }
         })
+    }
+
+    sendMessage = async (pipe: PipeBot, payload: PostMessageProtocol) => {
+        await pipe.sendMessage(payload)
     }
 
     static Error = (id: string, message: string): ErrorProtocol => {

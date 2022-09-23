@@ -7,5 +7,6 @@ export class Secret {
     // }
     static DISCORD_TOKEN = Deno.env.get("DISCORD_TOKEN")!
     static PIPE_CHANNEL_ID = Deno.env.get("PIPE_CHANNEL_ID")!
-    static WEBHOOK_URL = Deno.env.get("WEBHOOK_URL")!
+    static WEBHOOK_ID = Deno.env.get("WEBHOOK_ID")!
+    static WEBHOOK_TOKEN = Deno.env.get("WEBHOOK_TOKEN")!
 }
