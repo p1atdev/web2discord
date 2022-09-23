@@ -14,7 +14,7 @@ import {
 export class StreamServer {
     wss: WebSocketServer
     clients: Map<string, WebSocketClient> = new Map()
-    allowList: string[] = ["1234"]
+    allowList: string[] = []
 
     constructor(port?: number) {
         this.wss = new WebSocketServer(port ?? 8080)
@@ -93,6 +93,18 @@ export class StreamServer {
                     ws.close(1000, "Invalid message")
                 }
             })
+
+            ws.on("close", () => {
+                self.disconnected(ws)
+            })
+
+            ws.on("error", () => {
+                self.disconnected(ws)
+            })
+        })
+
+        this.wss.on("error", (err) => {
+            console.log("Error:", err)
         })
     }
 
@@ -132,6 +144,17 @@ export class StreamServer {
 
     sendMessage = async (pipe: PipeBot, payload: PostMessageProtocol) => {
         await pipe.sendMessage(payload)
+    }
+
+    disconnected = (ws: WebSocketClient) => {
+        console.log("ws closed!")
+        // get id from clients list
+        const id = Array.from(this.clients.keys()).find((key) => this.clients.get(key) === ws)
+        if (id) {
+            this.clients.delete(id)
+            this.allowList = this.allowList.filter((item) => item !== id)
+            console.log("Client disconnected:", id)
+        }
     }
 
     static Error = (id: string, message: string): ErrorProtocol => {

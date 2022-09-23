@@ -65,3 +65,8 @@ export interface OkProtocol extends StreamProtocol {
         id: string
     }
 }
+
+export interface AuthRequest {
+    token: string
+    id: string
+}

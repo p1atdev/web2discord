@@ -6,6 +6,6 @@ const server = new PipeServer()
 const stream = new StreamServer()
 const bot = new PipeBot(stream)
 
-server.start()
+server.start(stream)
 stream.start(stream, bot)
 bot.start()
