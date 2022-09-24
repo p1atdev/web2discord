@@ -10,4 +10,4 @@ const bot = new PipeBot(stream)
 server.start(stream, bot)
 bot.start()
 
-console.log("パスワード:", Secret.PIPE_TOKEN)
+console.log("Password:", Secret.PIPE_TOKEN)

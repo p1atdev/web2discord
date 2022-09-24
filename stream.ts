@@ -175,6 +175,7 @@ export class StreamServer {
 
     getUsers = async (pipe: PipeBot): Promise<UserProtocol[]> => {
         const users = await pipe.getUsers()
+        console.log("Alternamed users:", users)
         return users.map((user) => {
             return {
                 id: user.id.toString(),

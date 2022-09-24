@@ -68,6 +68,7 @@ export class PipeBot {
 
     getUsers = async () => {
         const users = await this.bot.helpers.getMembers(Secret.PIPE_GUILD_ID, { limit: 100 })
+        console.log("Users:", users)
         return users.map((user) => {
             const alter = getAlterName(user.id.toString())
 

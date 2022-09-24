@@ -1,4 +1,3 @@
-import { JsonErrorCodes } from "./deps.ts"
 import { Secret } from "./secret.ts"
 
 export type AlterName = Record<string, string>
