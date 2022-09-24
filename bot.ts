@@ -42,7 +42,7 @@ export class PipeBot {
             authorId: m.authorId.toString(),
             content: m.content,
             date: m.timestamp.toString(),
-            tag: m.tag,
+            tag: m.tag.substring(0, m.tag.lastIndexOf("#")),
             attachments: m.attachments.map((attachment) => {
                 return {
                     id: attachment.id.toString(),

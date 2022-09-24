@@ -158,7 +158,7 @@ export class StreamServer {
                 date: message.timestamp.toString(),
                 authorId: message.authorId.toString(),
                 content: message.content,
-                tag: message.tag,
+                tag: message.tag.substring(0, message.tag.lastIndexOf("#")),
                 attachments: message.attachments.map((attachment) => {
                     return {
                         id: attachment.id.toString(),
