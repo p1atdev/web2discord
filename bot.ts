@@ -71,8 +71,6 @@ export class PipeBot {
         return users.map((user) => {
             const alter = getAlterName(user.id.toString())
 
-            // console.log("alter:", alter)
-
             if (alter) {
                 return {
                     ...user,
@@ -82,6 +80,15 @@ export class PipeBot {
                     },
                 }
             } else {
+                if (user.user?.username.endsWith("#0000")) {
+                    return {
+                        ...user,
+                        user: {
+                            ...user.user,
+                            username: user.user?.username.substring(0, user.user?.username.length - 5),
+                        },
+                    }
+                }
                 return user
             }
         })
