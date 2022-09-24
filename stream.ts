@@ -14,10 +14,14 @@ import {
     UpdateUserProtocol,
     UserProtocol,
 } from "./protocol.ts"
+import { SharedSession } from "./shared.ts"
 
 export class StreamServer {
-    clients: Map<string, WebSocket> = new Map()
-    allowList: string[] = []
+    shared: SharedSession
+
+    constructor(shared: SharedSession) {
+        this.shared = shared
+    }
 
     handleWebSocket(pipe: PipeBot, ws: WebSocket) {
         console.log("Stream server started")
@@ -28,16 +32,17 @@ export class StreamServer {
             try {
                 const payload: StreamProtocol = JSON.parse(message)
                 console.log(payload)
-                console.log("Allowed list:", this.allowList)
+                console.log("Allowed list:", this.shared.allowList)
 
                 switch (payload.type) {
                     case "Hello": {
                         const hello: HelloProtocol = payload as HelloProtocol
-                        if (!this.isAllowed(hello.data.id)) {
+                        if (!this.shared.isAllowed(hello.data.id)) {
                             ws.send(JSON.stringify(StreamServer.Error(hello.data.id, "Not allowed")))
                             break
                         }
-                        this.clients.set(hello.data.id, ws)
+                        this.shared.clients.set(hello.data.id, ws)
+
                         console.log("Client connected:", hello.data.id)
                         ws.send(JSON.stringify(StreamServer.Ok(hello.data.id)))
 
@@ -49,7 +54,7 @@ export class StreamServer {
                         switch (get.data.target) {
                             case "Messages": {
                                 const getM: GetMessageProtocol = get as GetMessageProtocol
-                                if (!this.isAllowed(get.data.id)) {
+                                if (!this.shared.isAllowed(get.data.id)) {
                                     ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
                                     break
                                 }
@@ -69,7 +74,7 @@ export class StreamServer {
                                 break
                             }
                             case "Users": {
-                                if (!this.isAllowed(get.data.id)) {
+                                if (!this.shared.isAllowed(get.data.id)) {
                                     ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
                                     break
                                 }
@@ -98,7 +103,7 @@ export class StreamServer {
                     case "Post": {
                         const post: PostMessageProtocol = payload as PostMessageProtocol
 
-                        if (!this.isAllowed(post.data.id)) {
+                        if (!this.shared.isAllowed(post.data.id)) {
                             ws.send(JSON.stringify(StreamServer.Error(post.data.id, "Not allowed")))
                             break
                         }
@@ -131,16 +136,8 @@ export class StreamServer {
         }
     }
 
-    addAllowList(id: string) {
-        this.allowList.push(id)
-    }
-
-    isAllowed(id: string) {
-        return this.allowList.includes(id)
-    }
-
     broadcast(message: MessageProtocol) {
-        this.clients.forEach((client) => {
+        this.shared.clients.forEach((client) => {
             const update: UpdateMessageProtocol = {
                 type: "Update",
                 data: {
@@ -193,10 +190,10 @@ export class StreamServer {
     disconnected = (ws: WebSocket) => {
         console.log("ws closed!")
         // get id from clients list
-        const id = Array.from(this.clients.keys()).find((key) => this.clients.get(key) === ws)
+        const id = Array.from(this.shared.clients.keys()).find((key) => this.shared.clients.get(key) === ws)
         if (id) {
-            this.clients.delete(id)
-            this.allowList = this.allowList.filter((item) => item !== id)
+            this.shared.clients.delete(id)
+            this.shared.allowList = this.shared.allowList.filter((item) => item !== id)
             console.log("Client disconnected:", id)
         }
     }

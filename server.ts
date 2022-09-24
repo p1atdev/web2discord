@@ -1,13 +1,17 @@
 import { PipeBot } from "./bot.ts"
 import { serve, getCookies } from "./deps.ts"
 import { Secret } from "./secret.ts"
+import { SharedSession } from "./shared.ts"
 import { StreamServer } from "./stream.ts"
 
 export class PipeServer {
     hostname: string
     port: number
 
-    constructor(hostname?: string, port?: number) {
+    shared: SharedSession
+
+    constructor(shared: SharedSession, hostname?: string, port?: number) {
+        this.shared = shared
         this.hostname = hostname || "0.0.0.0"
         this.port = port || 8000
     }
@@ -36,8 +40,8 @@ export class PipeServer {
 
                         if (id) {
                             console.log("client_id found:", id)
-                            pipe.addAllowList(id)
-                            console.log("current allowed list:", pipe.allowList)
+                            this.shared.addAllowList(id)
+                            console.log("current allowed list:", this.shared.allowList)
                             return new Response(JSON.stringify({ status: "ok", id: id }), {
                                 status: 200,
                             })
@@ -45,8 +49,8 @@ export class PipeServer {
                             console.log("client_id not found")
                             const randomId = Math.random().toString(36).substring(7)
                             console.log("generated client_id:", randomId)
-                            pipe.addAllowList(randomId)
-                            console.log("current allowed list:", pipe.allowList)
+                            this.shared.addAllowList(randomId)
+                            console.log("current allowed list:", this.shared.allowList)
                             return new Response(JSON.stringify({ status: "ok", id: randomId }), {
                                 status: 200,
                                 headers: new Headers({
@@ -63,7 +67,7 @@ export class PipeServer {
                             if (json.token === Secret.PIPE_TOKEN) {
                                 console.log("Authed with json token")
                                 const randomId = Math.random().toString(36).substring(7)
-                                pipe.addAllowList(randomId)
+                                this.shared.addAllowList(randomId)
                                 return new Response(JSON.stringify({ status: "ok", id: randomId }), {
                                     status: 200,
                                     headers: new Headers({
@@ -101,37 +105,6 @@ export class PipeServer {
                 }
             }
         }
-
-        // const app = new hono.Hono()
-
-        // app.get("/", (c) => c.text("Hono!!"))
-
-        // app.post("/auth", (c) => {
-        //     // const json: AuthRequest = await c.req.json()
-        //     const token = c.req.cookie("token")
-
-        //     if (token === Secret.PIPE_TOKEN) {
-        //         const id = c.req.cookie("client_id")
-
-        //         if (id) {
-        //             pipe.addAllowList(id)
-        //             return c.json({
-        //                 status: "ok",
-        //                 id: id,
-        //             })
-        //         } else {
-        //             const randomId = Math.random().toString(36).substring(7)
-        //             pipe.addAllowList(randomId)
-        //             c.res.headers.append("Set-Cookie", `client_id=${randomId}`)
-        //             return c.json({
-        //                 status: "ok",
-        //                 id: randomId,
-        //             })
-        //         }
-        //     } else {
-        //         return c.json({ status: "error", message: "Invalid token" }, 401)
-        //     }
-        // })
 
         serve(handler, { hostname: this.hostname, port: this.port })
     }
