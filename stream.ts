@@ -19,7 +19,7 @@ export class StreamServer {
     clients: Map<string, WebSocket> = new Map()
     allowList: string[] = []
 
-    handleWebSocket(self: StreamServer, pipe: PipeBot, ws: WebSocket) {
+    handleWebSocket(pipe: PipeBot, ws: WebSocket) {
         console.log("Stream server started")
 
         ws.onmessage = async (event) => {
@@ -28,16 +28,16 @@ export class StreamServer {
             try {
                 const payload: StreamProtocol = JSON.parse(message)
                 console.log(payload)
-                console.log("Allowed:", self.allowList)
+                console.log("Allowed list:", this.allowList)
 
                 switch (payload.type) {
                     case "Hello": {
                         const hello: HelloProtocol = payload as HelloProtocol
-                        if (!self.isAllowed(hello.data.id)) {
+                        if (!this.isAllowed(hello.data.id)) {
                             ws.send(JSON.stringify(StreamServer.Error(hello.data.id, "Not allowed")))
                             break
                         }
-                        self.clients.set(hello.data.id, ws)
+                        this.clients.set(hello.data.id, ws)
                         console.log("Client connected:", hello.data.id)
                         ws.send(JSON.stringify(StreamServer.Ok(hello.data.id)))
 
@@ -49,7 +49,7 @@ export class StreamServer {
                         switch (get.data.target) {
                             case "Messages": {
                                 const getM: GetMessageProtocol = get as GetMessageProtocol
-                                if (!self.isAllowed(get.data.id)) {
+                                if (!this.isAllowed(get.data.id)) {
                                     ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
                                     break
                                 }
@@ -69,7 +69,7 @@ export class StreamServer {
                                 break
                             }
                             case "Users": {
-                                if (!self.isAllowed(get.data.id)) {
+                                if (!this.isAllowed(get.data.id)) {
                                     ws.send(JSON.stringify(StreamServer.Error(get.data.id, "Not allowed")))
                                     break
                                 }
@@ -98,14 +98,14 @@ export class StreamServer {
                     case "Post": {
                         const post: PostMessageProtocol = payload as PostMessageProtocol
 
-                        if (!self.isAllowed(post.data.id)) {
+                        if (!this.isAllowed(post.data.id)) {
                             ws.send(JSON.stringify(StreamServer.Error(post.data.id, "Not allowed")))
                             break
                         }
 
                         console.log("Client wants to post messages:", post.data.id)
 
-                        await self.sendMessage(pipe, post)
+                        await this.sendMessage(pipe, post)
 
                         break
                     }
@@ -122,12 +122,12 @@ export class StreamServer {
         }
 
         ws.onclose = () => {
-            self.disconnected(ws)
+            this.disconnected(ws)
         }
 
         ws.onerror = (err) => {
             console.log("Error:", err)
-            self.disconnected(ws)
+            this.disconnected(ws)
         }
     }
 

@@ -16,6 +16,9 @@ export class PipeServer {
         const handler = async (req: Request) => {
             const path = new URL(req.url).pathname
 
+            console.log("Request: ", path)
+            console.log("Method: ", req.method)
+
             switch (path) {
                 case "/auth": {
                     if (req.method !== "POST") {
@@ -83,7 +86,7 @@ export class PipeServer {
                     try {
                         const { response, socket } = Deno.upgradeWebSocket(req)
 
-                        pipe.handleWebSocket(pipe, bot, socket)
+                        pipe.handleWebSocket(bot, socket)
 
                         return response
                     } catch {
