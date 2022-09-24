@@ -20,3 +20,6 @@ export * from "https://deno.land/x/websocket@v0.1.4/mod.ts"
 
 // jwt
 export * as jwt from "https://deno.land/x/djwt@v2.7/mod.ts"
+
+// cookie
+export * from "https://deno.land/std@0.157.0/http/cookie.ts"

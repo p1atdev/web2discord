@@ -1,4 +1,5 @@
-import { serve, hono } from "./deps.ts"
+import { PipeBot } from "./bot.ts"
+import { serve, getCookies } from "./deps.ts"
 import { Secret } from "./secret.ts"
 import { StreamServer } from "./stream.ts"
 
@@ -11,38 +12,94 @@ export class PipeServer {
         this.port = port || 8000
     }
 
-    start(pipe: StreamServer) {
-        const app = new hono.Hono()
+    start(pipe: StreamServer, bot: PipeBot) {
+        const handler = (req: Request): Response => {
+            const path = new URL(req.url).pathname
 
-        app.get("/", (c) => c.text("Hono!!"))
+            switch (path) {
+                case "/auth": {
+                    const cookies = getCookies(req.headers)
+                    const token = cookies["token"]
 
-        app.post("/auth", (c) => {
-            // const json: AuthRequest = await c.req.json()
-            const token = c.req.cookie("token")
+                    if (token === Secret.PIPE_TOKEN) {
+                        const id = cookies["client_id"]
 
-            if (token === Secret.PIPE_TOKEN) {
-                const id = c.req.cookie("client_id")
+                        if (id) {
+                            pipe.addAllowList(id)
+                            return new Response(JSON.stringify({ status: "ok", id: id }), {
+                                status: 200,
+                            })
+                        } else {
+                            const randomId = Math.random().toString(36).substring(7)
+                            pipe.addAllowList(randomId)
+                            return new Response(JSON.stringify({ status: "ok", id: randomId }), {
+                                status: 200,
+                                headers: new Headers({
+                                    "Set-Cookie": `client_id=${randomId}`,
+                                }),
+                            })
+                        }
+                    } else {
+                        return new Response(JSON.stringify({ status: "error", message: "Invalid token" }), {
+                            status: 401,
+                        })
+                    }
+                }
+                case "/stream": {
+                    const upgrade = req.headers.get("upgrade") || ""
 
-                if (id) {
-                    pipe.addAllowList(id)
-                    return c.json({
-                        status: "ok",
-                        id: id,
-                    })
-                } else {
-                    const randomId = Math.random().toString(36).substring(7)
-                    pipe.addAllowList(randomId)
-                    c.res.headers.append("Set-Cookie", `client_id=${randomId}`)
-                    return c.json({
-                        status: "ok",
-                        id: randomId,
+                    console.log(upgrade)
+
+                    try {
+                        const { response, socket } = Deno.upgradeWebSocket(req)
+
+                        pipe.handleWebSocket(pipe, bot, socket)
+
+                        return response
+                    } catch {
+                        return new Response("request isn't trying to upgrade to websocket.")
+                    }
+                }
+
+                default: {
+                    return new Response("404 Not Found", {
+                        status: 404,
                     })
                 }
-            } else {
-                return c.json({ status: "error", message: "Invalid token" }, 401)
             }
-        })
+        }
 
-        serve(app.fetch, { hostname: this.hostname, port: this.port })
+        // const app = new hono.Hono()
+
+        // app.get("/", (c) => c.text("Hono!!"))
+
+        // app.post("/auth", (c) => {
+        //     // const json: AuthRequest = await c.req.json()
+        //     const token = c.req.cookie("token")
+
+        //     if (token === Secret.PIPE_TOKEN) {
+        //         const id = c.req.cookie("client_id")
+
+        //         if (id) {
+        //             pipe.addAllowList(id)
+        //             return c.json({
+        //                 status: "ok",
+        //                 id: id,
+        //             })
+        //         } else {
+        //             const randomId = Math.random().toString(36).substring(7)
+        //             pipe.addAllowList(randomId)
+        //             c.res.headers.append("Set-Cookie", `client_id=${randomId}`)
+        //             return c.json({
+        //                 status: "ok",
+        //                 id: randomId,
+        //             })
+        //         }
+        //     } else {
+        //         return c.json({ status: "error", message: "Invalid token" }, 401)
+        //     }
+        // })
+
+        serve(handler, { hostname: this.hostname, port: this.port })
     }
 }
