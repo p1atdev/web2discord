@@ -38,8 +38,7 @@ export class StreamServer {
                     case "Hello": {
                         const hello: HelloProtocol = payload as HelloProtocol
                         if (!this.shared.isAllowed(hello.data.id)) {
-                            ws.send(JSON.stringify(StreamServer.Error(hello.data.id, "Not allowed")))
-                            break
+                            this.shared.addAllowList(hello.data.id)
                         }
                         this.shared.clients.set(hello.data.id, ws)
 
