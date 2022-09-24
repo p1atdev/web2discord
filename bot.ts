@@ -71,7 +71,7 @@ export class PipeBot {
         return users.map((user) => {
             const alter = getAlterName(user.id.toString())
 
-            console.log("alter:", alter)
+            // console.log("alter:", alter)
 
             if (alter) {
                 return {
