@@ -27,6 +27,8 @@ export class PipeServer {
                     const cookies = getCookies(req.headers)
                     const token = cookies["token"]
 
+                    console.log("cookies", cookies)
+
                     if (token === Secret.PIPE_TOKEN) {
                         const id = cookies["client_id"]
 
