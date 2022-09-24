@@ -43,7 +43,7 @@ export class PipeServer {
                             return new Response(JSON.stringify({ status: "ok", id: randomId }), {
                                 status: 200,
                                 headers: new Headers({
-                                    "Set-Cookie": `client_id=${randomId}`,
+                                    "Set-Cookie": `client_id=${randomId}; HttpOnly; SameSite=None; Secure`,
                                 }),
                             })
                         }
@@ -57,7 +57,7 @@ export class PipeServer {
                                 return new Response(JSON.stringify({ status: "ok", id: randomId }), {
                                     status: 200,
                                     headers: new Headers({
-                                        "Set-Cookie": `client_id=${randomId}`,
+                                        "Set-Cookie": `client_id=${randomId}; HttpOnly; SameSite=None; Secure`,
                                     }),
                                 })
                             }
