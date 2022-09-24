@@ -80,15 +80,6 @@ export class PipeBot {
                     },
                 }
             } else {
-                if (user.user?.username.endsWith("#0000")) {
-                    return {
-                        ...user,
-                        user: {
-                            ...user.user,
-                            username: user.user?.username.substring(0, user.user?.username.length - 5),
-                        },
-                    }
-                }
                 return user
             }
         })
@@ -98,6 +89,16 @@ export class PipeBot {
         await this.bot.helpers.sendWebhookMessage(Secret.WEBHOOK_ID, Secret.WEBHOOK_TOKEN, {
             username: payload.data.username,
             content: payload.data.message,
+            avatarUrl: this.generateAvatarUrl(payload.data.username),
         })
+    }
+
+    private generateAvatarUrl(username: string) {
+        const hash = username
+            .split("")
+            .map((c) => c.charCodeAt(0))
+            .reduce((a, b) => a + b, 0)
+            .toString()
+        return `https://source.boringavatars.com/bauhaus/120/${hash}?colors=FFAD08,EDD75A,73B06F,0C8F8F,405059`
     }
 }
