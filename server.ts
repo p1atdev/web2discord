@@ -13,7 +13,7 @@ export class PipeServer {
     }
 
     start(pipe: StreamServer, bot: PipeBot) {
-        const handler = (req: Request): Response => {
+        const handler = async (req: Request) => {
             const path = new URL(req.url).pathname
 
             switch (path) {
@@ -40,6 +40,21 @@ export class PipeServer {
                             })
                         }
                     } else {
+                        const body = await req.text()
+                        if (body.length > 0) {
+                            const json = JSON.parse(body)
+                            if (json.token === Secret.PIPE_TOKEN) {
+                                const randomId = Math.random().toString(36).substring(7)
+                                pipe.addAllowList(randomId)
+                                return new Response(JSON.stringify({ status: "ok", id: randomId }), {
+                                    status: 200,
+                                    headers: new Headers({
+                                        "Set-Cookie": `client_id=${randomId}`,
+                                    }),
+                                })
+                            }
+                        }
+
                         return new Response(JSON.stringify({ status: "error", message: "Invalid token" }), {
                             status: 401,
                         })
