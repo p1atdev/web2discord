@@ -18,6 +18,12 @@ export class PipeServer {
 
             switch (path) {
                 case "/auth": {
+                    if (req.method !== "POST") {
+                        return new Response("Method not allowed", {
+                            status: 405,
+                        })
+                    }
+
                     const cookies = getCookies(req.headers)
                     const token = cookies["token"]
 
