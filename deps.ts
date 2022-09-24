@@ -7,7 +7,7 @@ export * from "https://deno.land/std@0.157.0/http/server.ts"
 export * from "https://deno.land/std@0.157.0/testing/asserts.ts"
 
 // Hono
-export * as hono from "https://deno.land/x/hono@v2.2.1/mod.ts"
+// export * as hono from "https://deno.land/x/hono@v2.2.1/mod.ts"
 
 // discordeno
 export * from "https://deno.land/x/discordeno@16.0.0/mod.ts"
