@@ -94,11 +94,6 @@ export class PipeBot {
     }
 
     private generateAvatarUrl(username: string) {
-        const hash = username
-            .split("")
-            .map((c) => c.charCodeAt(0))
-            .reduce((a, b) => a + b, 0)
-            .toString()
-        return `https://source.boringavatars.com/bauhaus/120/${hash}?colors=FFAD08,EDD75A,73B06F,0C8F8F,405059`
+        return `${Secret.ICON_SERVER}/api/icon?username=${username}`
     }
 }

@@ -9,4 +9,5 @@ export class Secret {
     static WEBHOOK_TOKEN = Deno.env.get("WEBHOOK_TOKEN")!
     static PIPE_TOKEN = Deno.env.get("PIPE_TOKEN")!
     static ALTER_NAME = Deno.env.get("ALTER_NAME")!
+    static ICON_SERVER = Deno.env.get("ICON_SERVER")!
 }
