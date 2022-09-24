@@ -27,20 +27,23 @@ export class PipeServer {
                     const cookies = getCookies(req.headers)
                     const token = cookies["token"]
 
-                    console.log("cookies", cookies)
-                    console.log("token", token)
-
                     if (token === Secret.PIPE_TOKEN) {
+                        console.log("Authed with cookie token")
                         const id = cookies["client_id"]
 
                         if (id) {
+                            console.log("client_id found:", id)
                             pipe.addAllowList(id)
+                            console.log("current allowed list:", pipe.allowList)
                             return new Response(JSON.stringify({ status: "ok", id: id }), {
                                 status: 200,
                             })
                         } else {
+                            console.log("client_id not found")
                             const randomId = Math.random().toString(36).substring(7)
+                            console.log("generated client_id:", randomId)
                             pipe.addAllowList(randomId)
+                            console.log("current allowed list:", pipe.allowList)
                             return new Response(JSON.stringify({ status: "ok", id: randomId }), {
                                 status: 200,
                                 headers: new Headers({
@@ -49,10 +52,13 @@ export class PipeServer {
                             })
                         }
                     } else {
+                        console.log("Not authed")
+
                         const body = await req.text()
                         if (body.length > 0) {
                             const json = JSON.parse(body)
                             if (json.token === Secret.PIPE_TOKEN) {
+                                console.log("Authed with json token")
                                 const randomId = Math.random().toString(36).substring(7)
                                 pipe.addAllowList(randomId)
                                 return new Response(JSON.stringify({ status: "ok", id: randomId }), {
