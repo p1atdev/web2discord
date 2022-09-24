@@ -28,6 +28,7 @@ export class StreamServer {
             try {
                 const payload: StreamProtocol = JSON.parse(message)
                 console.log(payload)
+                console.log("Allowed:", self.allowList)
 
                 switch (payload.type) {
                     case "Hello": {
