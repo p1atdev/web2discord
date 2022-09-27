@@ -36,7 +36,7 @@ export class PipeBot {
         if (m.channelId.toString() !== Secret.PIPE_CHANNEL_ID) {
             return
         }
-        console.log(m.tag, m.content)
+        console.log(`New message: ${m.tag} < ${m.content}`)
         this.streamServer.broadcast({
             id: m.id.toString(),
             authorId: m.authorId.toString(),
@@ -55,11 +55,13 @@ export class PipeBot {
 
     getMessages = async (count: number, before?: string) => {
         if (before) {
+            console.log("Before:", before)
             return await this.bot.helpers.getMessages(Secret.PIPE_CHANNEL_ID, {
                 before: before,
                 limit: count,
             })
         } else {
+            console.log("No before")
             return await this.bot.helpers.getMessages(Secret.PIPE_CHANNEL_ID, {
                 limit: count,
             })
