@@ -60,7 +60,7 @@ export class StreamServer {
 
                                 console.log("Client wants to get messages:", get.data.id)
 
-                                const messages = await this.getMessages(pipe, getM.data.count)
+                                const messages = await this.getMessages(pipe, getM.data.count, getM.data.before)
                                 const update: UpdateMessageProtocol = {
                                     type: "Update",
                                     data: {
@@ -150,9 +150,10 @@ export class StreamServer {
     }
 
     getMessages = async (pipe: PipeBot, count: number, before?: string): Promise<MessageProtocol[]> => {
+        console.log("Get messages, count:", count, ", before:", before)
         const messages = await pipe.getMessages(count, before)
         return messages.map((message) => {
-            console.log(message.attachments)
+            // console.log(message.attachments)
             return {
                 id: message.id.toString(),
                 date: message.timestamp.toString(),
@@ -171,8 +172,9 @@ export class StreamServer {
     }
 
     getUsers = async (pipe: PipeBot): Promise<UserProtocol[]> => {
+        console.log("Get users")
         const users = await pipe.getUsers()
-        console.log("Alternamed users:", users)
+        // console.log("Alternamed users:", users)
         return users.map((user) => {
             return {
                 id: user.id.toString(),
